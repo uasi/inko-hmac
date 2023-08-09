@@ -1,0 +1,494 @@
+import std::test::Tests
+
+import hmac::Hmac
+
+fn pub tests(t: mut Tests) {
+  #
+  # Tests from [FIPS 198](https://csrc.nist.gov/files/pubs/fips/198/final/docs/fips-198a.pdf)
+  #
+
+  t.test('HMAC-SHA1 - FIPS 198 - Sample #1') fn (t) {
+    let key = ByteArray.from_array([
+      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+      0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+      0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+      0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+      0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+      0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+      0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+      0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+    ])
+    let message = 'Sample #1'.to_byte_array
+    let expected = '4f4ca3d5d68ba7cc0a1208c9c61e9c5da0403c0a'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+  }
+
+  t.test('HMAC-SHA1 - FIPS 198 - Sample #2') fn (t) {
+    let key = ByteArray.from_array([
+      0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+      0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+      0x40, 0x41, 0x42, 0x43,
+    ])
+    let message = 'Sample #2'.to_byte_array
+    let expected = '0922d3405faa3d194f82a45830737d5cc6c75d24'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA1 - FIPS 198 - Sample #3') fn (t) {
+    let key = ByteArray.from_array([
+      0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
+      0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
+      0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+      0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
+      0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,
+      0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
+      0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+      0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+      0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+      0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f,
+      0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7,
+      0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf,
+      0xb0, 0xb1, 0xb2, 0xb3,
+    ])
+    let message = 'Sample #3'.to_byte_array
+    let expected = 'bcf41eab8bb2d802f3d05caf7cb092ecf8d1a3aa'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  #
+  # Tests from [RFC 2202](https://www.rfc-editor.org/rfc/rfc2202)
+  #
+
+  t.test('HMAC-MD5 - RFC 2202 - Test case #1') fn (t) {
+    let key = ByteArray.filled(with: 0x0b, times: 16)
+    let message = 'Hi There'.to_byte_array
+    let expected = '9294727a3638bb1c13f48ef8158bfc9d'
+
+    let hmac = Hmac.new_md5(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.md5(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-MD5 - RFC 2202 - Test case #2') fn (t) {
+    let key = 'Jefe'.to_byte_array
+    let message = 'what do ya want for nothing?'.to_byte_array
+    let expected = '750c783e6ab0b503eaa86e310a5db738'
+
+    let hmac = Hmac.new_md5(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.md5(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-MD5 - RFC 2202 - Test case #3') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 16)
+    let message = ByteArray.filled(with: 0xdd, times: 50)
+    let expected = '56be34521d144c88dbb8c733f0e8b3f6'
+
+    let hmac = Hmac.new_md5(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.md5(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-MD5 - RFC 2202 - Test case #4') fn (t) {
+    let key = ByteArray.from_array([
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+      0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+      0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+      0x19,
+    ])
+    let message = ByteArray.filled(with: 0xcd, times: 50)
+    let expected = '697eaf0aca3a3aea3a75164746ffaa79'
+
+    let hmac = Hmac.new_md5(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.md5(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-MD5 - RFC 2202 - Test case #5') fn (t) {
+    let key = ByteArray.filled(with: 0x0c, times: 16)
+    let message = 'Test With Truncation'.to_byte_array
+    let expected = '56461ef2342edc00f9bab995690efd4c'
+
+    let hmac = Hmac.new_md5(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.md5(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-MD5 - RFC 2202 - Test case #6') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 80)
+    let message = 'Test Using Larger Than Block-Size Key - Hash Key First'.to_byte_array
+    let expected = '6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd'
+
+    let hmac = Hmac.new_md5(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.md5(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-MD5 - RFC 2202 - Test case #7') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 80)
+    let message = 'Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data'.to_byte_array
+    let expected = '6f630fad67cda0ee1fb1f562db3aa53e'
+
+    let hmac = Hmac.new_md5(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.md5(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA1 - RFC 2202 - Test case #1') fn (t) {
+    let key = ByteArray.filled(with: 0x0b, times: 20)
+    let message = 'Hi There'.to_byte_array
+    let expected = 'b617318655057264e28bc0b6fb378c8ef146be00'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+  }
+
+  t.test('HMAC-SHA1 - RFC 2202 - Test case #2') fn (t) {
+    let key = 'Jefe'.to_byte_array
+    let message = 'what do ya want for nothing?'.to_byte_array
+    let expected = 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA1 - RFC 2202 - Test case #3') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 20)
+    let message = ByteArray.filled(with: 0xdd, times: 50)
+    let expected = '125d7342b9ac11cd91a39af48aa17b4f63f175d3'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA1 - RFC 2202 - Test case #4') fn (t) {
+    let key = ByteArray.from_array([
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+      0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+      0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+      0x19,
+    ])
+    let message = ByteArray.filled(with: 0xcd, times: 50)
+    let expected = '4c9007f4026250c6bc8414f9bf50c86c2d7235da'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA1 - RFC 2202 - Test case #5') fn (t) {
+    let key = ByteArray.filled(with: 0x0c, times: 20)
+    let message = 'Test With Truncation'.to_byte_array
+    let expected = '4c1a03424b55e07fe7f27be1d58bb9324a9a5a04'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA1 - RFC 2202 - Test case #6') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 80)
+    let message = 'Test Using Larger Than Block-Size Key - Hash Key First'.to_byte_array
+    let expected = 'aa4ae5e15272d00e95705637ce8a3b55ed402112'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA1 - RFC 2202 - Test case #7') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 80)
+    let message = 'Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data'.to_byte_array
+    let expected = 'e8e99d0f45237d786d6bbaa7965c7808bbff1a91'
+
+    let hmac = Hmac.new_sha1(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha1(key, message).to_string, expected)
+  }
+
+  #
+  # Tests from [RFC 4231](https://www.rfc-editor.org/rfc/rfc4231)
+  #
+
+  t.test('HMAC-SHA256 - RFC 4231 - Test case #1') fn (t) {
+    let key = ByteArray.filled(with: 0x0b, times: 20)
+    let message = 'Hi There'.to_byte_array
+    let expected = 'b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7'
+
+    let hmac = Hmac.new_sha256(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha256(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA256 - RFC 4231 - Test case #2') fn (t) {
+    let key = 'Jefe'.to_byte_array
+    let message = 'what do ya want for nothing?'.to_byte_array
+    let expected = '5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843'
+
+    let hmac = Hmac.new_sha256(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha256(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA256 - RFC 4231 - Test case #3') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 20)
+    let message = ByteArray.filled(with: 0xdd, times: 50)
+    let expected = '773ea91e36800e46854db8ebd09181a72959098b3ef8c122d9635514ced565fe'
+
+    let hmac = Hmac.new_sha256(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha256(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA256 - RFC 4231 - Test case #4') fn (t) {
+    let key = ByteArray.from_array([
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+      0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+      0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+      0x19,
+    ])
+    let message = ByteArray.filled(with: 0xcd, times: 50)
+    let expected = '82558a389a443c0ea4cc819899f2083a85f0faa3e578f8077a2e3ff46729665b'
+
+    let hmac = Hmac.new_sha256(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha256(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA256 - RFC 4231 - Test case #5') fn (t) {
+    let key = ByteArray.filled(with: 0x0c, times: 20)
+    let message = 'Test With Truncation'.to_byte_array
+    let expected = 'a3b6167473100ee06e0c796c2955552b'
+
+    let hmac = Hmac.new_sha256(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string.slice(0, 32)
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha256(key, message).to_string.slice(0, 32), expected)
+  }
+
+  t.test('HMAC-SHA256 - RFC 4231 - Test case #6') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 131)
+    let message = 'Test Using Larger Than Block-Size Key - Hash Key First'.to_byte_array
+    let expected = '60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54'
+
+    let hmac = Hmac.new_sha256(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha256(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA256 - RFC 4231 - Test case #7') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 131)
+    let message = 'This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.'.to_byte_array
+    let expected = '9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2'
+
+    let hmac = Hmac.new_sha256(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha256(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA512 - RFC 4231 - Test case #1') fn (t) {
+    let key = ByteArray.filled(with: 0x0b, times: 20)
+    let message = 'Hi There'.to_byte_array
+    let expected = '87aa7cdea5ef619d4ff0b4241a1d6cb02379f4e2ce4ec2787ad0b30545e17cdedaa833b7d6b8a702038b274eaea3f4e4be9d914eeb61f1702e696c203a126854'
+
+    let hmac = Hmac.new_sha512(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha512(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA512 - RFC 4231 - Test case #2') fn (t) {
+    let key = 'Jefe'.to_byte_array
+    let message = 'what do ya want for nothing?'.to_byte_array
+    let expected = '164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea2505549758bf75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737'
+
+    let hmac = Hmac.new_sha512(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha512(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA512 - RFC 4231 - Test case #3') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 20)
+    let message = ByteArray.filled(with: 0xdd, times: 50)
+    let expected = 'fa73b0089d56a284efb0f0756c890be9b1b5dbdd8ee81a3655f83e33b2279d39bf3e848279a722c806b485a47e67c807b946a337bee8942674278859e13292fb'
+
+    let hmac = Hmac.new_sha512(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha512(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA512 - RFC 4231 - Test case #4') fn (t) {
+    let key = ByteArray.from_array([
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+      0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+      0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+      0x19,
+    ])
+    let message = ByteArray.filled(with: 0xcd, times: 50)
+    let expected = 'b0ba465637458c6990e5a8c5f61d4af7e576d97ff94b872de76f8050361ee3dba91ca5c11aa25eb4d679275cc5788063a5f19741120c4f2de2adebeb10a298dd'
+
+    let hmac = Hmac.new_sha512(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha512(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA512 - RFC 4231 - Test case #5') fn (t) {
+    let key = ByteArray.filled(with: 0x0c, times: 20)
+    let message = 'Test With Truncation'.to_byte_array
+    let expected = '415fad6271580a531d4179bc891d87a6'
+
+    let hmac = Hmac.new_sha512(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string.slice(0, 32)
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha512(key, message).to_string.slice(0, 32), expected)
+  }
+
+  t.test('HMAC-SHA512 - RFC 4231 - Test case #6') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 131)
+    let message = 'Test Using Larger Than Block-Size Key - Hash Key First'.to_byte_array
+    let expected = '80b24263c7c1a3ebb71493c1dd7be8b49b46d1f41b4aeec1121b013783f8f3526b56d037e05f2598bd0fd2215d6a1e5295e64f73f63f0aec8b915a985d786598'
+
+    let hmac = Hmac.new_sha512(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha512(key, message).to_string, expected)
+  }
+
+  t.test('HMAC-SHA512 - RFC 4231 - Test case #7') fn (t) {
+    let key = ByteArray.filled(with: 0xaa, times: 131)
+    let message = 'This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.'.to_byte_array
+    let expected = 'e37b6a775dc87dbaa4dfa9f96e5e3ffddebd71f8867289865df5a32d20cdc944b6022cac3c4982b10d5eeb55c3e4de15134676fb6de0446065c97440fa8c6a58'
+
+    let hmac = Hmac.new_sha512(key)
+    hmac.write(message)
+    let actual = hmac.finish.to_string
+
+    t.equal(actual, expected)
+
+    t.equal(Hmac.sha512(key, message).to_string, expected)
+  }
+}
