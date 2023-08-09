@@ -1,6 +1,6 @@
-import std::test::Tests
+import std.test.Tests
 
-import hmac::Hmac
+import hmac.Hmac
 
 fn pub tests(t: mut Tests) {
   #
@@ -354,11 +354,11 @@ fn pub tests(t: mut Tests) {
 
     let hmac = Hmac.new_sha256(key)
     hmac.write(message)
-    let actual = hmac.finish.to_string.slice(0, 32)
+    let actual = hmac.finish.to_string.slice(0, 32).to_string
 
     t.equal(actual, expected)
 
-    t.equal(Hmac.sha256(key, message).to_string.slice(0, 32), expected)
+    t.equal(Hmac.sha256(key, message).to_string.slice(0, 32).to_string, expected)
   }
 
   t.test('HMAC-SHA256 - RFC 4231 - Test case #6') fn (t) {
@@ -457,11 +457,11 @@ fn pub tests(t: mut Tests) {
 
     let hmac = Hmac.new_sha512(key)
     hmac.write(message)
-    let actual = hmac.finish.to_string.slice(0, 32)
+    let actual = hmac.finish.to_string.slice(0, 32).to_string
 
     t.equal(actual, expected)
 
-    t.equal(Hmac.sha512(key, message).to_string.slice(0, 32), expected)
+    t.equal(Hmac.sha512(key, message).to_string.slice(0, 32).to_string, expected)
   }
 
   t.test('HMAC-SHA512 - RFC 4231 - Test case #6') fn (t) {

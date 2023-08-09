@@ -1,7 +1,7 @@
-import std::env
-import std::test::(Filter, Tests)
+import std.env
+import std.test.(Filter, Tests)
 
-import hmac::test_hmac
+import hmac.test_hmac
 
 class async Main {
   fn async main {
