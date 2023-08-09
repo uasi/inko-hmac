@@ -21,6 +21,7 @@ import std::crypto::sha2::(Sha256, Sha512)
 #
 #     let hash = Hmac.sha1('my key'.to_byte_array, 'hello'.to_byte_array)
 #     hash.to_string # => 'fe072cabf75976329b8da24c67dbae2be29740a2'
+#
 # # Limitations
 #
 # Underlying implementations of hash functions may have imitations.
