@@ -29,15 +29,15 @@ import std.string.Bytes
 # Refer to their respective documentation in the standard library
 # for more information.
 class pub Hmac[H: mut + Hasher] {
-  let @inner: H
-  let @outer: H
+  let @inner: move H
+  let @outer: move H
 
   # Creates a new instance of the HMAC hasher.
   #
   # # Examples
   #
   #     let hmac = Hmac.new(hasher: fn () { Sha1.new }, block_size: 64, key: 'my key')
-  fn pub static new[K: Bytes](hasher: fn () -> H, block_size: Int, key: ref K) -> Hmac[H] {
+  fn pub static new[K: Bytes](hasher: fn () -> move H, block_size: Int, key: ref K) -> Hmac[move H] {
     let key = key.slice(0, key.size)
     let key = if key.size > block_size {
       let hasher = hasher.call
