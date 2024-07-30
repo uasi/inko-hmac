@@ -12,7 +12,7 @@ An HMAC implementation for the Inko programming language.
 
 You can also use `Hmac.sha1` etc. to generate an HMAC hash directly.
 
-    import hmac.Hmac
+    import hmac Hmac
 
     let hash = Hmac.sha1('my key', 'hello')
     hash.to_string # => 'fe072cabf75976329b8da24c67dbae2be29740a2'
