@@ -1,8 +1,8 @@
-import std.crypto.hash.(Hash, Hasher)
-import std.crypto.md5.Md5
-import std.crypto.sha1.Sha1
-import std.crypto.sha2.(Sha256, Sha512)
-import std.string.Bytes
+import std.crypto.hash (Hash, Hasher)
+import std.crypto.md5 (Md5)
+import std.crypto.sha1 (Sha1)
+import std.crypto.sha2 (Sha256, Sha512)
+import std.string (Bytes)
 
 # An implementation of the Keyed-Hash Message Authentication Code (HMAC).
 #
@@ -37,48 +37,56 @@ class pub Hmac[H: mut + Hasher] {
   # # Examples
   #
   #     let hmac = Hmac.new(hasher: fn () { Sha1.new }, block_size: 64, key: 'my key')
-  fn pub static new[K: Bytes](hasher: fn () -> move H, block_size: Int, key: ref K) -> Hmac[move H] {
+  fn pub static new[K: Bytes](
+    hasher: fn -> move H,
+    block_size: Int,
+    key: ref K,
+  ) -> Hmac[move H] {
     let key = key.slice(0, key.size)
     let key = if key.size > block_size {
       let hasher = hasher.call
+
       hasher.write(key)
       hasher.finish.bytes.to_byte_array
     } else {
       key
     }
+
     key.resize(block_size, value: 0)
 
     let inner = hasher.call
     let outer = hasher.call
-    let ipad = ByteArray.from_array(key.iter.map fn (byte) { byte ^ 0x36 }.to_array)
-    let opad = ByteArray.from_array(key.iter.map fn (byte) { byte ^ 0x5c }.to_array)
+    let ipad = ByteArray.from_array(
+      key.iter.map(fn (byte) { byte ^ 0x36 }).to_array,
+    )
+    let opad = ByteArray.from_array(
+      key.iter.map(fn (byte) { byte ^ 0x5c }).to_array,
+    )
+
     inner.write(ipad)
     outer.write(opad)
 
-    Hmac {
-      @inner = inner,
-      @outer = outer,
-    }
+    Hmac(inner: inner, outer: outer)
   }
 
   # Creates a new instance of the HMAC-MD5 hasher with the given key.
   fn pub static new_md5[K: Bytes](key: ref K) -> Hmac[Md5] {
-    Hmac.new(fn () { Md5.new }, 64, key)
+    Hmac.new(fn { Md5.new }, 64, key)
   }
 
   # Creates a new instance of the HMAC-SHA1 hasher with the given key.
   fn pub static new_sha1[K: Bytes](key: ref K) -> Hmac[Sha1] {
-    Hmac.new(fn () { Sha1.new }, 64, key)
+    Hmac.new(fn { Sha1.new }, 64, key)
   }
 
   # Creates a new instance of the HMAC-SHA256 hasher with the given key.
   fn pub static new_sha256[K: Bytes](key: ref K) -> Hmac[Sha256] {
-    Hmac.new(fn () { Sha256.new }, 64, key)
+    Hmac.new(fn { Sha256.new }, 64, key)
   }
 
   # Creates a new instance of the HMAC-SHA512 hasher with the given key.
   fn pub static new_sha512[K: Bytes](key: ref K) -> Hmac[Sha512] {
-    Hmac.new(fn () { Sha512.new }, 128, key)
+    Hmac.new(fn { Sha512.new }, 128, key)
   }
 
   # Generates a new HMAC-MD5 hash for the given key and message.
@@ -89,6 +97,7 @@ class pub Hmac[H: mut + Hasher] {
   #     hash.to_string # => '88c93986a9afd5b799790d6ead203850'
   fn pub static md5[K: Bytes, B: Bytes](key: ref K, bytes: ref B) -> Hash {
     let hmac = Hmac.new_md5(key)
+
     hmac.write(bytes.slice(0, bytes.size))
     hmac.finish
   }
@@ -101,6 +110,7 @@ class pub Hmac[H: mut + Hasher] {
   #     let hash.to_string # => 'fe072cabf75976329b8da24c67dbae2be29740a2'
   fn pub static sha1[K: Bytes, B: Bytes](key: ref K, bytes: ref B) -> Hash {
     let hmac = Hmac.new_sha1(key)
+
     hmac.write(bytes.slice(0, bytes.size))
     hmac.finish
   }
@@ -113,6 +123,7 @@ class pub Hmac[H: mut + Hasher] {
   #     hash.to_string # => 'c46027683ca1cd4016cce63a61b85024e0310e526199da0e6cab55c4e9090d86'
   fn pub static sha256[K: Bytes, B: Bytes](key: ref K, bytes: ref B) -> Hash {
     let hmac = Hmac.new_sha256(key)
+
     hmac.write(bytes.slice(0, bytes.size))
     hmac.finish
   }
@@ -125,6 +136,7 @@ class pub Hmac[H: mut + Hasher] {
   #     hash.to_string # => '2acaeff5af1c6daae1831a8f6a71e7af530b4da54a3da1af24299ba0e7501f5a1f2ebbda0e89a11ade0d94cf415b554c826b76e50fcd90a49f02641eff544518'
   fn pub static sha512[K: Bytes, B: Bytes](key: ref K, bytes: ref B) -> Hash {
     let hmac = Hmac.new_sha512(key)
+
     hmac.write(bytes.slice(0, bytes.size))
     hmac.finish
   }

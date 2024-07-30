@@ -4,7 +4,7 @@ An HMAC implementation for the Inko programming language.
 
 ## Examples
 
-    import hmac.Hmac
+    import hmac (Hmac)
 
     let hmac = Hmac.new_sha1('my key')
     hmac.write('hello')
