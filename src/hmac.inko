@@ -42,7 +42,7 @@ class pub Hmac[H: mut + Hasher] {
     block_size: Int,
     key: ref K,
   ) -> Hmac[move H] {
-    let key = key.slice(0, key.size)
+    let key = if key.size > 0 { key.slice(0, key.size) } else { ByteArray.new }
     let key = if key.size > block_size {
       let hasher = hasher.call
 
