@@ -28,7 +28,7 @@ import std.string (Bytes)
 # Underlying implementations of hash functions may have imitations.
 # Refer to their respective documentation in the standard library
 # for more information.
-class pub Hmac[H: mut + Hasher] {
+type pub Hmac[H: mut + Hasher] {
   let @inner: move H
   let @outer: move H
 
@@ -41,7 +41,7 @@ class pub Hmac[H: mut + Hasher] {
     hasher: fn -> move H,
     block_size: Int,
     key: ref K,
-  ) -> Hmac[move H] {
+  ) -> Hmac[H] {
     let key = if key.size > 0 { key.slice(0, key.size) } else { ByteArray.new }
     let key = if key.size > block_size {
       let hasher = hasher.call
