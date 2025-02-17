@@ -1,5 +1,9 @@
 # Changelog
 
+## 202t-02-18 - v0.4.0
+
+- Support Inko 0.18.1.
+
 ## 2024-07-31 - v0.3.1
 
 - Fix a bug where calling `Hmac.new` with key of length 0 panics.
